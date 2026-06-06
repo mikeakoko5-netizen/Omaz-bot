@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 
 @app.route("/", methods=["GET"])
 def health():
@@ -39,7 +39,7 @@ def geminitest():
 @app.route("/analyze", methods=["POST"])
 def analyze():
     global GEMINI_URL
-    GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
+    GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
     try:
         data = request.json
         market_data = data.get("market_data", {})
@@ -140,7 +140,16 @@ def telegram():
             return jsonify(result)
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+@app.route("/models")
+def models():
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
 
+        with urllib.request.urlopen(url) as resp:
+            return resp.read().decode()
+
+    except Exception as e:
+        return str(e), 500
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
