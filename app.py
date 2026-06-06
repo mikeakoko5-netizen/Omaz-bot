@@ -76,7 +76,7 @@ Rules:
 
         payload = json.dumps({
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.3, "maxOutputTokens": 1024}
+            "generationConfig": {"temperature": 0.3, "maxOutputTokens": 200}
         }).encode()
 
         req = urllib.request.Request(
