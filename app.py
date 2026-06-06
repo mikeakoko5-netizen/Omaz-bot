@@ -14,6 +14,27 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.
 @app.route("/", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "message": "PO AI Bot Server running! Powered by Gemini AI"})
+@app.route("/geminitest")
+def geminitest():
+    try:
+        payload = json.dumps({
+            "contents": [{
+                "parts": [{"text": "Say OK"}]
+            }]
+        }).encode()
+
+        req = urllib.request.Request(
+            GEMINI_URL,
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return resp.read().decode()
+
+    except urllib.error.HTTPError as e:
+        return e.read().decode(), e.code
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
