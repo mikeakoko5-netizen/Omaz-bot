@@ -9,37 +9,18 @@ app = Flask(__name__)
 CORS(app)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
+GEMINI_MODEL = "gemini-1.5-flash-latest"
+
+def get_gemini_url():
+    key = os.environ.get("GEMINI_API_KEY", "")
+    return f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={key}"
 
 @app.route("/", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "message": "PO AI Bot Server running! Powered by Gemini AI"})
-@app.route("/geminitest")
-def geminitest():
-    try:
-        payload = json.dumps({
-            "contents": [{
-                "parts": [{"text": "Say OK"}]
-            }]
-        }).encode()
-
-        req = urllib.request.Request(
-            GEMINI_URL,
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST"
-        )
-
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            return resp.read().decode()
-
-    except urllib.error.HTTPError as e:
-        return e.read().decode(), e.code
 
 @app.route("/analyze", methods=["POST"])
 def analyze():
-    global GEMINI_URL
-    GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={os.environ.get('GEMINI_API_KEY')}"
     try:
         data = request.json
         market_data = data.get("market_data", {})
@@ -97,11 +78,11 @@ Rules:
 
         payload = json.dumps({
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.3, "maxOutputTokens": 200}
+            "generationConfig": {"temperature": 0.3, "maxOutputTokens": 1024}
         }).encode()
 
         req = urllib.request.Request(
-            GEMINI_URL,
+            get_gemini_url(),
             data=payload,
             headers={"Content-Type": "application/json"},
             method="POST"
@@ -140,16 +121,7 @@ def telegram():
             return jsonify(result)
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
-@app.route("/models")
-def models():
-    try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
 
-        with urllib.request.urlopen(url) as resp:
-            return resp.read().decode()
-
-    except Exception as e:
-        return str(e), 500
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
