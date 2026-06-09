@@ -99,24 +99,8 @@ Rules:
             method="POST"
         )
 
-        import time
-
-result = None
-
-for attempt in range(3):
-    try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            result = json.loads(resp.read())
-            break
-
-    except urllib.error.HTTPError as e:
-        if e.code == 503:
-            time.sleep(5)
-            continue
-        raise
-
-if result is None:
-    raise Exception("Gemini unavailable after retries")
+      with urllib.request.urlopen(req, timeout=30) as resp:
+    result = json.loads(resp.read())
 
         text = result["candidates"][0]["content"]["parts"][0]["text"]
         clean = text.replace("```json", "").replace("```", "").strip()
