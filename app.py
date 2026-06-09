@@ -102,11 +102,11 @@ Rules:
       with urllib.request.urlopen(req, timeout=30) as resp:
     result = json.loads(resp.read())
 
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        clean = text.replace("```json", "").replace("```", "").strip()
-        try:
-    signal = json.loads(clean)
+text = result["candidates"][0]["content"]["parts"][0]["text"]
+clean = text.replace("```json", "").replace("```", "").strip()
 
+try:
+    signal = json.loads(clean)
 except:
     signal = {
         "direction": "WAIT",
@@ -120,7 +120,11 @@ except:
         "risk_note": "No valid signal",
         "recommended_expiry": "3"
     }
-        return jsonify({"success": True, "signal": signal})
+
+return jsonify({
+    "success": True,
+    "signal": signal
+})
 
     except json.JSONDecodeError as e:
         return jsonify({"success": False, "error": f"JSON parse error: {str(e)}"}), 500
