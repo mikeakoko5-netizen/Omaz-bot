@@ -19,6 +19,17 @@ def get_gemini_url():
 def health():
     return jsonify({"status": "ok", "message": "PO AI Bot Server running! Powered by Gemini AI"})
 
+@app.route("/models")
+def models():
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
+
+        with urllib.request.urlopen(url) as resp:
+            return resp.read().decode()
+
+    except Exception as e:
+        return str(e), 500
+
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
