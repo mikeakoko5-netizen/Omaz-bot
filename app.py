@@ -99,12 +99,43 @@ Rules:
             method="POST"
         )
 
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        import time
+
+result = None
+
+for attempt in range(3):
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
             result = json.loads(resp.read())
+            break
+
+    except urllib.error.HTTPError as e:
+        if e.code == 503:
+            time.sleep(5)
+            continue
+        raise
+
+if result is None:
+    raise Exception("Gemini unavailable after retries")
 
         text = result["candidates"][0]["content"]["parts"][0]["text"]
         clean = text.replace("```json", "").replace("```", "").strip()
-        signal = json.loads(clean)
+        try:
+    signal = json.loads(clean)
+
+except:
+    signal = {
+        "direction": "WAIT",
+        "confidence": 0,
+        "strength": "LOW",
+        "signal_type": "TREND",
+        "bull_score": 0,
+        "bear_score": 0,
+        "summary": "AI returned invalid JSON",
+        "key_reasons": ["Retry needed"],
+        "risk_note": "No valid signal",
+        "recommended_expiry": "3"
+    }
         return jsonify({"success": True, "signal": signal})
 
     except json.JSONDecodeError as e:
