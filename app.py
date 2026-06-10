@@ -19,17 +19,6 @@ def get_gemini_url():
 def health():
     return jsonify({"status": "ok", "message": "PO AI Bot Server running! Powered by Gemini AI"})
 
-@app.route("/models")
-def models():
-    try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models?key={GEMINI_API_KEY}"
-
-        with urllib.request.urlopen(url) as resp:
-            return resp.read().decode()
-
-    except Exception as e:
-        return str(e), 500
-
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
@@ -99,32 +88,13 @@ Rules:
             method="POST"
         )
 
-      with urllib.request.urlopen(req, timeout=30) as resp:
-    result = json.loads(resp.read())
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read())
 
-text = result["candidates"][0]["content"]["parts"][0]["text"]
-clean = text.replace("```json", "").replace("```", "").strip()
-
-try:
-    signal = json.loads(clean)
-except:
-    signal = {
-        "direction": "WAIT",
-        "confidence": 0,
-        "strength": "LOW",
-        "signal_type": "TREND",
-        "bull_score": 0,
-        "bear_score": 0,
-        "summary": "AI returned invalid JSON",
-        "key_reasons": ["Retry needed"],
-        "risk_note": "No valid signal",
-        "recommended_expiry": "3"
-    }
-
-return jsonify({
-    "success": True,
-    "signal": signal
-})
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+        clean = text.replace("```json", "").replace("```", "").strip()
+        signal = json.loads(clean)
+        return jsonify({"success": True, "signal": signal})
 
     except json.JSONDecodeError as e:
         return jsonify({"success": False, "error": f"JSON parse error: {str(e)}"}), 500
