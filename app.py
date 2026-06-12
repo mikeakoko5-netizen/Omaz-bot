@@ -92,8 +92,8 @@ Rules:
             result = json.loads(resp.read())
 
         try:
-    text = result["candidates"][0]["content"]["parts"][0]["text"]
-except:
+        text = result["candidates"][0]["content"]["parts"][0]["text"]
+    except:
     return jsonify({
         "success": True,
         "signal": {
@@ -108,11 +108,7 @@ except:
             "risk_note": "No valid signal",
             "recommended_expiry": "3"
         }
-    })
-        
-        
-       
-
+    }) 
     except json.JSONDecodeError as e:
         return jsonify({"success": False, "error": f"JSON parse error: {str(e)}"}), 500
     except urllib.error.HTTPError as e:
