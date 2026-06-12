@@ -91,10 +91,27 @@ Rules:
         with urllib.request.urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read())
 
-        text = result["candidates"][0]["content"]["parts"][0]["text"]
-        clean = text.replace("```json", "").replace("```", "").strip()
-        signal = json.loads(clean)
-        return jsonify({"success": True, "signal": signal})
+        try:
+    text = result["candidates"][0]["content"]["parts"][0]["text"]
+except:
+    return jsonify({
+        "success": True,
+        "signal": {
+            "direction": "WAIT",
+            "confidence": 0,
+            "strength": "WEAK",
+            "signal_type": "TREND",
+            "bull_score": 0,
+            "bear_score": 0,
+            "summary": "No response from Gemini",
+            "key_reasons": ["Empty response"],
+            "risk_note": "No valid signal",
+            "recommended_expiry": "3"
+        }
+    })
+        
+        
+       
 
     except json.JSONDecodeError as e:
         return jsonify({"success": False, "error": f"JSON parse error: {str(e)}"}), 500
