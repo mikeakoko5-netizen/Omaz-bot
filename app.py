@@ -100,7 +100,7 @@ def analyze():
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
                 "temperature": 0.3,
-                "maxOutputTokens": 1024
+                "maxOutputTokens": 1500
             }
         }).encode()
 
@@ -174,4 +174,3 @@ def telegram():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-     
